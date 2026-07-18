@@ -130,6 +130,19 @@
     100% { transform: translateY(0) scale(1); color: inherit; text-shadow: none; }
   }
 
+  .wordmark-sub {
+    font-family: ui-rounded, "SF Pro Rounded", "Onest", sans-serif;
+    font-weight: 800;
+    font-size: clamp(12px, 2.5vw, 26px);
+    letter-spacing: -0.035em;
+    line-height: 1;
+    color: var(--text);
+    margin-top: 4px;
+    opacity: 0;
+    animation: fade-up 1.2s cubic-bezier(0.16,1,0.3,1) forwards;
+    animation-delay: 0.7s;
+  }
+
   .dash-mark {
     width: 140px;
     height: 6px;
@@ -232,7 +245,7 @@
   }
 
   @media (prefers-reduced-motion: reduce) {
-    .orb, .wordmark, .letter, .dash-mark, .tagline, .description, .signup, .eyebrow, .dash-streak {
+    .orb, .wordmark, .wordmark-sub, .letter, .dash-mark, .tagline, .description, .signup, .eyebrow, .dash-streak {
       animation: none !important;
       opacity: 1 !important;
       transform: none !important;
@@ -252,10 +265,11 @@
 
 <main class="hero">
   <p class="eyebrow">macOS · Liquid Glass</p>
-  <h1 class="wordmark" aria-label="Dash"><span class="letter" style="--i:0" aria-hidden="true">D</span><span class="letter" style="--i:1" aria-hidden="true">a</span><span class="letter" style="--i:2" aria-hidden="true">s</span><span class="letter" style="--i:3" aria-hidden="true">h</span></h1>
+  <h1 class="wordmark" aria-label="Dash Browser"><span class="letter" style="--i:0" aria-hidden="true">D</span><span class="letter" style="--i:1" aria-hidden="true">a</span><span class="letter" style="--i:2" aria-hidden="true">s</span><span class="letter" style="--i:3" aria-hidden="true">h</span></h1>
+  <p class="wordmark-sub" aria-hidden="true">Browser</p>
   <div class="dash-mark" aria-hidden="true"></div>
   <p class="tagline">Built for speed. Allergic to ads.</p>
-  <p class="description">Dash renders every tab through Apple's Liquid Glass and feels like it was actually built for your Mac — not bolted onto Chrome. Coming soon.</p>
+  <p class="description">Dash renders every tab through Apple's Liquid Glass and feels like it was actually built for your Mac. Coming soon.</p>
 
   <form class="signup" id="signup-form">
     <label for="email" style="position:absolute; width:1px; height:1px; overflow:hidden; clip:rect(0,0,0,0);">Email address</label>
@@ -291,6 +305,27 @@
   //   mobile — the letters end up rippling well after the streak has
   //   already passed. Computing the actual crossing time from the current
   //   viewport width fixes that for any screen size.
+  // Sizes "Browser" so its rendered width matches (or sits slightly under)
+  // the wordmark's actual width. "Browser" has almost twice the characters
+  // of "Dash", so no single fixed font-size reliably fits both — this
+  // measures the real rendered width of each and solves for the exact
+  // font-size that makes them match, the same measurement-based approach
+  // as the streak positioning above.
+  function fitBrowserSubtitle() {
+    var wordmark = document.querySelector('.wordmark');
+    var sub = document.querySelector('.wordmark-sub');
+    if (!wordmark || !sub) return;
+
+    var wordmarkWidth = wordmark.getBoundingClientRect().width;
+    var subWidth = sub.getBoundingClientRect().width;
+    if (subWidth === 0) return;
+
+    var currentFontSize = parseFloat(getComputedStyle(sub).fontSize);
+    var targetWidth = wordmarkWidth * 0.47; // half the previous width, less prominent
+    var newFontSize = currentFontSize * (targetWidth / subWidth);
+    sub.style.fontSize = newFontSize + 'px';
+  }
+
   function centerStreakAndSyncRipple() {
     var wordmark = document.querySelector('.wordmark');
     var streak = document.querySelector('.dash-streak');
@@ -321,15 +356,20 @@
     });
   }
 
-  // Wait for real fonts to finish loading before measuring — otherwise a
-  // fallback font's different metrics could shift the wordmark's size
-  // right after this runs, throwing off the measurement.
-  if (document.fonts && document.fonts.ready) {
-    document.fonts.ready.then(centerStreakAndSyncRipple);
-  } else {
-    window.addEventListener('load', centerStreakAndSyncRipple);
+  function runAllMeasurements() {
+    fitBrowserSubtitle();
+    centerStreakAndSyncRipple();
   }
-  window.addEventListener('resize', centerStreakAndSyncRipple);
+
+  // Wait for real fonts to finish loading before measuring — otherwise a
+  // fallback font's different metrics could shift element sizes right
+  // after this runs, throwing off the measurements.
+  if (document.fonts && document.fonts.ready) {
+    document.fonts.ready.then(runAllMeasurements);
+  } else {
+    window.addEventListener('load', runAllMeasurements);
+  }
+  window.addEventListener('resize', runAllMeasurements);
 </script>
 </body>
 </html>
