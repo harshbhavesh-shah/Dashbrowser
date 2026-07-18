@@ -111,6 +111,8 @@
   .letter {
     display: inline-block;
     animation: liquid-wave 0.75s cubic-bezier(0.34,1.56,0.64,1) both;
+    /* Fallback for no-JS — overridden dynamically to match the actual
+       viewport width, see centerStreakAndSyncRipple() in the script below. */
     animation-delay: calc(1.3s + var(--i) * 0.045s);
   }
   @keyframes liquid-wave {
@@ -252,8 +254,8 @@
   <p class="eyebrow">macOS · Liquid Glass</p>
   <h1 class="wordmark" aria-label="Dash"><span class="letter" style="--i:0" aria-hidden="true">D</span><span class="letter" style="--i:1" aria-hidden="true">a</span><span class="letter" style="--i:2" aria-hidden="true">s</span><span class="letter" style="--i:3" aria-hidden="true">h</span></h1>
   <div class="dash-mark" aria-hidden="true"></div>
-  <p class="tagline">No ads. No trackers. Just glass.</p>
-  <p class="description">Dash blocks ads before they load, skips YouTube ads automatically, and renders every tab through Apple's Liquid Glass. Coming soon to macOS.</p>
+  <p class="tagline">Built for speed. Allergic to ads.</p>
+  <p class="description">Dash renders every tab through Apple's Liquid Glass and feels like it was actually built for your Mac — not bolted onto Chrome. Coming soon.</p>
 
   <form class="signup" id="signup-form">
     <label for="email" style="position:absolute; width:1px; height:1px; overflow:hidden; clip:rect(0,0,0,0);">Email address</label>
@@ -273,29 +275,61 @@
   });
 
   // Positions the streak to pass exactly through the wordmark's vertical
-  // center. A fixed CSS percentage can't reliably do this — the wordmark's
-  // actual position depends on the combined height of everything above it
-  // plus its own responsive clamp() size, neither of which map to one
-  // percentage that holds across screen sizes. Measuring the real rendered
-  // element is the only way to guarantee exact alignment.
-  function centerStreakOnWordmark() {
+  // center, AND syncs the letter ripple's start time to when the streak
+  // actually crosses the wordmark horizontally. Both depend on real
+  // measurements rather than fixed values:
+  //
+  // - Vertical position: the wordmark's actual screen position depends on
+  //   the combined height of everything above it plus its own responsive
+  //   clamp() size — no fixed CSS percentage tracks that across screen
+  //   sizes.
+  // - Ripple timing: the streak travels a fixed pixel distance (-300px to
+  //   110% of viewport width) in a fixed 2.4s. On a narrow phone screen
+  //   that's a much shorter total distance than on desktop, so the streak
+  //   reaches the wordmark's horizontal position much earlier in its
+  //   timeline. A hardcoded delay tuned for desktop arrives too late on
+  //   mobile — the letters end up rippling well after the streak has
+  //   already passed. Computing the actual crossing time from the current
+  //   viewport width fixes that for any screen size.
+  function centerStreakAndSyncRipple() {
     var wordmark = document.querySelector('.wordmark');
     var streak = document.querySelector('.dash-streak');
-    if (!wordmark || !streak) return;
+    var letters = document.querySelectorAll('.letter');
+    if (!wordmark || !streak || !letters.length) return;
+
     var rect = wordmark.getBoundingClientRect();
     var centerY = rect.top + rect.height / 2;
+    var centerX = rect.left + rect.width / 2;
     streak.style.top = centerY + 'px';
+
+    // Matches the CSS: `left: -300px` to `left: 110%`, `animation-delay:
+    // 0.15s`, `animation-duration: 2.4s`. Uses a linear approximation of
+    // the streak's cubic-bezier easing — close enough to sync a ripple
+    // trigger, doesn't need to be frame-perfect.
+    var streakStartX = -300;
+    var streakEndX = window.innerWidth * 1.1;
+    var totalDistance = streakEndX - streakStartX;
+    var distanceToWordmark = centerX - streakStartX;
+    var fraction = Math.max(0, Math.min(1, distanceToWordmark / totalDistance));
+
+    var streakDelay = 0.15;
+    var streakDuration = 2.4;
+    var crossTime = streakDelay + fraction * streakDuration;
+
+    letters.forEach(function (letter, i) {
+      letter.style.animationDelay = (crossTime + i * 0.045) + 's';
+    });
   }
 
   // Wait for real fonts to finish loading before measuring — otherwise a
   // fallback font's different metrics could shift the wordmark's size
   // right after this runs, throwing off the measurement.
   if (document.fonts && document.fonts.ready) {
-    document.fonts.ready.then(centerStreakOnWordmark);
+    document.fonts.ready.then(centerStreakAndSyncRipple);
   } else {
-    window.addEventListener('load', centerStreakOnWordmark);
+    window.addEventListener('load', centerStreakAndSyncRipple);
   }
-  window.addEventListener('resize', centerStreakOnWordmark);
+  window.addEventListener('resize', centerStreakAndSyncRipple);
 </script>
 </body>
 </html>
