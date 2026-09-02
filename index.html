@@ -3,10 +3,11 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Dash — coming soon</title>
+<title>Dash — a native macOS browser</title>
+<meta name="description" content="Dash is a from-scratch macOS browser built with SwiftUI and WebKit. Liquid Glass everywhere, built-in ad blocking, and a new-tab page that's actually yours.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=Manrope:wght@400;500;600&family=Onest:wght@700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=Manrope:wght@400;500;600;700&family=Onest:wght@700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
   :root {
     --bg: #0c0a12;
@@ -16,13 +17,12 @@
     --text: #f5f3f0;
     --text-muted: #a19dae;
     --glass-border: rgba(255,255,255,0.08);
+    --card-bg: rgba(255,255,255,0.03);
   }
 
   * { margin: 0; padding: 0; box-sizing: border-box; }
-  html, body {
-    height: 100%;
-    overflow: hidden;
-    overscroll-behavior: none;
+  html {
+    scroll-behavior: smooth;
   }
 
   body {
@@ -30,6 +30,7 @@
     color: var(--text);
     font-family: 'Manrope', sans-serif;
     position: relative;
+    overflow-x: hidden;
   }
 
   .grain {
@@ -58,13 +59,13 @@
   .orb-2 {
     width: 380px; height: 380px;
     background: radial-gradient(circle, rgba(255,122,89,0.30), transparent 70%);
-    bottom: -110px; right: -90px;
+    top: 520px; right: -90px;
     animation: float2 22s ease-in-out infinite;
   }
   .orb-3 {
     width: 300px; height: 300px;
     background: radial-gradient(circle, rgba(255,193,94,0.25), transparent 70%);
-    top: 42%; right: 12%;
+    top: 140px; right: 12%;
     animation: float3 30s ease-in-out infinite;
   }
   @keyframes float1 { 0%,100% { transform: translate(0,0) scale(1); } 50% { transform: translate(60px,40px) scale(1.08); } }
@@ -81,7 +82,7 @@
     align-items: center;
     justify-content: center;
     text-align: center;
-    padding: 0 24px;
+    padding: 120px 24px 64px;
   }
 
   @keyframes fade-up { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
@@ -173,54 +174,61 @@
     line-height: 1.7;
     color: var(--text-muted);
     max-width: 480px;
-    margin: 0 auto 44px;
+    margin: 0 auto 40px;
     opacity: 0;
     animation: fade-up 0.9s ease forwards;
     animation-delay: 2.3s;
   }
 
-  .signup {
+  .cta-row {
     display: flex;
-    gap: 8px;
-    background: rgba(255,255,255,0.05);
-    border: 1px solid var(--glass-border);
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
-    border-radius: 999px;
-    padding: 6px;
-    max-width: 420px;
-    margin: 0 auto;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: 14px;
     opacity: 0;
     animation: fade-up 0.9s ease forwards;
     animation-delay: 2.6s;
   }
-  .signup input {
-    flex: 1;
-    min-width: 0;
-    background: transparent;
-    border: none;
-    outline: none;
-    color: var(--text);
-    font-family: 'Manrope', sans-serif;
-    font-size: 14px;
-    padding: 12px 16px;
-  }
-  .signup input::placeholder { color: var(--text-muted); }
-  .signup button {
+
+  .btn-primary, .btn-secondary {
     font-family: 'Manrope', sans-serif;
     font-weight: 600;
-    font-size: 14px;
+    font-size: 15px;
+    border-radius: 999px;
+    padding: 14px 28px;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+  }
+  .btn-primary {
     color: #0c0a12;
     background: linear-gradient(90deg, var(--coral), var(--gold));
-    border: none;
-    border-radius: 999px;
-    padding: 12px 22px;
-    cursor: pointer;
-    white-space: nowrap;
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    box-shadow: 0 8px 24px rgba(255,122,89,0.25);
   }
-  .signup button:hover { transform: translateY(-1px); box-shadow: 0 8px 20px rgba(255,122,89,0.3); }
-  .signup button:focus-visible, .signup input:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
+  .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 12px 28px rgba(255,122,89,0.4); }
+  .btn-secondary {
+    color: var(--text);
+    background: rgba(255,255,255,0.05);
+    border: 1px solid var(--glass-border);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+  }
+  .btn-secondary:hover { transform: translateY(-2px); background: rgba(255,255,255,0.08); }
+  .btn-primary:focus-visible, .btn-secondary:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
+
+  .requirements {
+    margin-top: 22px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    letter-spacing: 0.02em;
+    color: var(--text-muted);
+    opacity: 0;
+    animation: fade-up 0.9s ease forwards;
+    animation-delay: 2.8s;
+  }
 
   .dash-streak {
     position: fixed;
@@ -238,14 +246,146 @@
   }
   @keyframes streak { to { left: 110%; } }
 
+  /* ---------- Shared section chrome ---------- */
+
+  section {
+    position: relative;
+    z-index: 2;
+    max-width: 1080px;
+    margin: 0 auto;
+    padding: 64px 24px;
+  }
+
+  .section-eyebrow {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--coral);
+    text-align: center;
+    margin-bottom: 12px;
+  }
+
+  .section-title {
+    font-family: ui-rounded, "SF Pro Rounded", "Onest", sans-serif;
+    font-weight: 800;
+    font-size: clamp(28px, 4vw, 42px);
+    letter-spacing: -0.02em;
+    text-align: center;
+    margin-bottom: 56px;
+  }
+
+  /* ---------- Showcase ---------- */
+
+  .showcase-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 48px;
+  }
+  .showcase-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 18px;
+  }
+  .showcase-item img {
+    width: 100%;
+    max-width: 880px;
+    border-radius: 16px;
+    border: 1px solid var(--glass-border);
+    box-shadow: 0 30px 80px rgba(0,0,0,0.45);
+    display: block;
+  }
+  .showcase-caption {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 14px;
+    color: var(--text-muted);
+    text-align: center;
+    max-width: 520px;
+  }
+
+  /* ---------- Features ---------- */
+
+  .features-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+  }
+  .feature-card {
+    background: var(--card-bg);
+    border: 1px solid var(--glass-border);
+    border-radius: 20px;
+    padding: 28px;
+  }
+  .feature-icon {
+    font-size: 26px;
+    margin-bottom: 16px;
+    display: block;
+  }
+  .feature-title {
+    font-family: 'Space Grotesk', sans-serif;
+    font-weight: 700;
+    font-size: 17px;
+    margin-bottom: 8px;
+  }
+  .feature-desc {
+    font-family: 'Manrope', sans-serif;
+    font-size: 14px;
+    line-height: 1.6;
+    color: var(--text-muted);
+  }
+
+  /* ---------- Final CTA ---------- */
+
+  .final-cta {
+    text-align: center;
+    padding-bottom: 40px;
+  }
+  .final-cta .section-title { margin-bottom: 28px; }
+
+  /* ---------- Footer ---------- */
+
+  footer {
+    position: relative;
+    z-index: 2;
+    border-top: 1px solid var(--glass-border);
+    padding: 40px 24px 48px;
+    text-align: center;
+  }
+  .footer-links {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 24px;
+    margin-bottom: 20px;
+    font-family: 'Manrope', sans-serif;
+    font-size: 14px;
+  }
+  .footer-links a {
+    color: var(--text-muted);
+    text-decoration: none;
+  }
+  .footer-links a:hover { color: var(--text); }
+  .footer-credit {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    color: var(--text-muted);
+    opacity: 0.7;
+  }
+  .footer-credit a { color: inherit; }
+
+  @media (max-width: 780px) {
+    .features-grid { grid-template-columns: 1fr; }
+  }
+
   @media (max-width: 640px) {
-    .signup { flex-direction: column; border-radius: 20px; }
-    .signup button { border-radius: 14px; }
     .orb { filter: blur(60px); }
+    .cta-row { flex-direction: column; align-items: stretch; }
+    .btn-primary, .btn-secondary { justify-content: center; }
   }
 
   @media (prefers-reduced-motion: reduce) {
-    .orb, .wordmark, .wordmark-sub, .letter, .dash-mark, .tagline, .description, .signup, .eyebrow, .dash-streak {
+    .orb, .wordmark, .wordmark-sub, .letter, .dash-mark, .tagline, .description, .cta-row, .requirements, .eyebrow, .dash-streak {
       animation: none !important;
       opacity: 1 !important;
       transform: none !important;
@@ -269,25 +409,91 @@
   <p class="wordmark-sub" aria-hidden="true">Browser</p>
   <div class="dash-mark" aria-hidden="true"></div>
   <p class="tagline">Allergic to ads. Addicted to speed.</p>
-  <p class="description">Dash renders every tab through Apple's Liquid Glass and feels like it was actually built for your Mac. Coming soon.</p>
+  <p class="description">A from-scratch macOS browser built with SwiftUI and WebKit — not a Chromium wrapper. Dash renders every tab through Apple's Liquid Glass and feels like it was actually built for your Mac.</p>
 
-  <form class="signup" id="signup-form">
-    <label for="email" style="position:absolute; width:1px; height:1px; overflow:hidden; clip:rect(0,0,0,0);">Email address</label>
-    <input type="email" id="email" placeholder="you@example.com" required>
-    <button type="submit">Notify me</button>
-  </form>
+  <div class="cta-row">
+    <a class="btn-primary" href="https://github.com/harshbhavesh-shah/Dash/releases/latest">Download for macOS</a>
+    <a class="btn-secondary" href="https://github.com/harshbhavesh-shah/Dash">View on GitHub</a>
+  </div>
+  <p class="requirements">macOS 26 (Tahoe) or later · Free &amp; open source · MIT licensed</p>
 </main>
 
+<section class="showcase">
+  <p class="section-eyebrow">See it in motion</p>
+  <h2 class="section-title">A browser that feels like your Mac</h2>
+  <div class="showcase-grid">
+    <div class="showcase-item">
+      <img src="assets/screenshot-sidebar.png" alt="Dash with the sidebar open, showing tabs, tab groups, and a loaded page" loading="lazy" width="1920" height="1080">
+      <p class="showcase-caption">Sidebar expanded — tabs, tab groups, and a page in progress.</p>
+    </div>
+    <div class="showcase-item">
+      <img src="assets/demo-navigation.gif" alt="The search bar morphing into the floating address bar as a page loads" loading="lazy" width="1000" height="563">
+      <p class="showcase-caption">The search bar morphing into the floating address bar as a page loads.</p>
+    </div>
+    <div class="showcase-item">
+      <img src="assets/screenshot-landing.png" alt="Dash's new-tab page with a greeting, favorites, and the search bar" loading="lazy" width="1920" height="1080">
+      <p class="showcase-caption">The new-tab page — greeting, favorites, and the search bar mid-glow.</p>
+    </div>
+  </div>
+</section>
+
+<section class="features">
+  <p class="section-eyebrow">Everything, natively</p>
+  <h2 class="section-title">Built on Apple's own frameworks</h2>
+  <div class="features-grid">
+    <div class="feature-card">
+      <span class="feature-icon">🗂️</span>
+      <h3 class="feature-title">Tabs, groups &amp; pins</h3>
+      <p class="feature-desc">Custom-named, colored tab groups, pinned tabs, and a Quick Switcher (⌘K) that searches open tabs and history together.</p>
+    </div>
+    <div class="feature-card">
+      <span class="feature-icon">🛡️</span>
+      <h3 class="feature-title">Built-in ad blocking</h3>
+      <p class="feature-desc">Native content-rule-list blocking for ads and trackers, plus a dedicated YouTube ad-skip script — toggle it anytime in Settings.</p>
+    </div>
+    <div class="feature-card">
+      <span class="feature-icon">🖼️</span>
+      <h3 class="feature-title">A new tab that's yours</h3>
+      <p class="feature-desc">Custom background images, editable favorites, a time-aware greeting, and 30 built-in color themes plus a custom accent picker.</p>
+    </div>
+    <div class="feature-card">
+      <span class="feature-icon">✨</span>
+      <h3 class="feature-title">Liquid Glass design</h3>
+      <p class="feature-desc">Real vibrancy, not a flat tint — the interface adapts to whatever's behind it, the same way Safari's own chrome does.</p>
+    </div>
+    <div class="feature-card">
+      <span class="feature-icon">🔒</span>
+      <h3 class="feature-title">Privacy controls</h3>
+      <p class="feature-desc">Independent toggles for tracker blocking, history, and search suggestions, private windows locked behind Touch ID, and a choice of search engine.</p>
+    </div>
+    <div class="feature-card">
+      <span class="feature-icon">⚡️</span>
+      <h3 class="feature-title">Fast tab switching</h3>
+      <p class="feature-desc">A pooled <code>WKWebView</code> architecture keeps tabs warm, so switching between them feels instant even with dozens open.</p>
+    </div>
+  </div>
+</section>
+
+<section class="final-cta">
+  <h2 class="section-title">Try it on your Mac</h2>
+  <div class="cta-row">
+    <a class="btn-primary" href="https://github.com/harshbhavesh-shah/Dash/releases/latest">Download for macOS</a>
+    <a class="btn-secondary" href="https://github.com/harshbhavesh-shah/Dash#-getting-started">Build from source</a>
+  </div>
+</section>
+
+<footer>
+  <div class="footer-links">
+    <a href="https://github.com/harshbhavesh-shah/Dash">GitHub</a>
+    <a href="https://github.com/harshbhavesh-shah/Dash/releases">Releases</a>
+    <a href="https://github.com/harshbhavesh-shah/Dash/issues">Issues</a>
+    <a href="https://github.com/harshbhavesh-shah/Dash/blob/Dash/LICENSE">MIT License</a>
+    <a href="https://harsh.radiancelaser.in">Portfolio</a>
+  </div>
+  <p class="footer-credit">Made by <a href="https://harsh.radiancelaser.in">Harsh Shah</a></p>
+</footer>
 
 <script>
-  document.getElementById('signup-form').addEventListener('submit', function (e) {
-    e.preventDefault();
-    // TODO: wire this up to a real email service (Formspree, ConvertKit,
-    // Mailchimp, a serverless function, etc.) — this just confirms the
-    // interaction for now.
-    alert("Thanks — we'll let you know when Dash is ready.");
-  });
-
   // Positions the streak to pass exactly through the wordmark's vertical
   // center, AND syncs the letter ripple's start time to when the streak
   // actually crosses the wordmark horizontally. Both depend on real
