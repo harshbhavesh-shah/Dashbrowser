@@ -50,7 +50,7 @@
     position: sticky;
     top: 0;
     z-index: 20;
-    background: rgba(250,247,242,0.82);
+    background: rgba(250,247,242,0.96);
     backdrop-filter: blur(14px);
     -webkit-backdrop-filter: blur(14px);
     border-bottom: 1px solid var(--line);
@@ -144,14 +144,15 @@
     font-weight: 500;
     color: var(--accent);
   }
-  /* Reserves room for the longest word in the cycle ("behaves") so the
-     rest of the sentence doesn't reflow/jump as shorter words type in —
-     that reflow was the "buggy" jitter. Left-aligned so the word itself
-     still grows and shrinks naturally against a fixed-width slot. */
+  /* No fixed-width reservation here on purpose — a min-width sized to
+     the longest word (tried "behaves") ends up wider than the other,
+     shorter words at this headline's large font size, which forced an
+     extra line break on wide viewports every time a short word typed
+     in. Keeping every word in the cycle the same length (see the word
+     list in the script below) keeps this box's width nearly constant
+     on its own, without needing to reserve worst-case space for it. */
   .cycle-wrap {
     display: inline-block;
-    min-width: 7.4ch;
-    text-align: left;
   }
   #cycleWord {
     position: relative;
@@ -713,7 +714,8 @@
     if (!el) return;
     if (window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches) return;
 
-    var words = ['feels', 'looks', 'behaves', 'moves', 'sails'];
+    // Same length by design — see the .cycle-wrap comment above.
+    var words = ['feels', 'looks', 'moves', 'flows', 'sails'];
     var wordIndex = 0;
     var charIndex = words[0].length;
     var deleting = true;
